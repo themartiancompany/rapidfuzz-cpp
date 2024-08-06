@@ -39,6 +39,17 @@ b2sums=(
   '49743ab1634649bf5a2b33d91dce1877b0c3135345d9c187eb2d633a1bb804701697d8245a74cfde2a76564abeb3fc8228dce121dcc1a05f74630400d06bb659'
 )
 
+prepare() {
+  if [[ "${_os}" == "Android" ]]; then
+    echo \
+      "add_cxx_compiler_flag(-Wno-shorten-64-to-32)" >> \
+      "${srcdir}/CMakeLists.txt"
+    echo \
+      "add_cxx_compiler_flag(-Wno-deprecated-declarations)" >> \
+      "${srcdir}/CMakeLists.txt"
+  fi
+}
+
 build() {
   local \
     _cmake_opts=() \
@@ -49,18 +60,23 @@ build() {
   )
   _cmake_opts=(
     -D RAPIDFUZZ_BUILD_TESTING=ON 
-    -D RAPIDFUZZ_ENABLE_LINTERS=ON 
     -D CMAKE_BUILD_TYPE=None 
     -D CMAKE_INSTALL_PREFIX=/usr 
     -W no-dev
   )
-  if [[ "${_os}" == "Android" ]]; then
+  if [[ "${_os}" == "GNU/Linux" ]]; then
     _cmake_opts+=(
+      -D RAPIDFUZZ_ENABLE_LINTERS=ON 
+    )
+  elif [[ "${_os}" == "Android" ]]; then
+    _cmake_opts+=(
+      -D RAPIDFUZZ_BUILD_TESTING=OFF
       -W no-shorten-64-to-32
+      -W no-deprecated-declarations
     )
     _cxxflags+=(
-      -Wno-shorten-64-to-32
-      -Wno-error-shorten-64-to-32
+      -Wno-error=shorten-64-to-32
+      -Wno-error=deprecated-declarations
     )
   fi
   echo \
