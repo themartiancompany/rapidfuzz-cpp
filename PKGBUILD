@@ -5,12 +5,24 @@
 # Maintainer: George Rawlinson <grawlinson@archlinux.org>
 # Contributor: Pekka Ristola <pekkarr [at] protonmail [dot] com>
 
+_os="$( \
+  uname \
+    -o)"
 pkgname=rapidfuzz-cpp
 pkgver=3.0.2
 pkgrel=1
 pkgdesc='Rapid fuzzy string matching in C++ using the Levenshtein Distance'
-arch=('any')
-url='https://github.com/maxbachmann/rapidfuzz-cpp'
+arch=(
+  # 'any' it doesn't seem 'any'
+  x86_64
+  arm
+  armv7l
+  mips
+  powerpc
+  i686
+  aarch64
+)
+url="https://github.com/maxbachmann/${pkgname}"
 license=(
   'MIT'
 )
@@ -29,7 +41,12 @@ b2sums=(
 
 build() {
   local \
-    _cmake_opts=()
+    _cmake_opts=() \
+    _cxxflags=()
+  _cxxflags=(
+    "${CFLAGS}"
+    "${CXXFLAGS}"
+  )
   _cmake_opts=(
     -D RAPIDFUZZ_BUILD_TESTING=ON 
     -D RAPIDFUZZ_ENABLE_LINTERS=ON 
@@ -41,11 +58,21 @@ build() {
     _cmake_opts+=(
       -W no-shorten-64-to-32
     )
+    _cxxflags+=(
+      -Wno-shorten-64-to-32
+      -Wno-error-shorten-64-to-32
+    )
   fi
+  echo \
+    "CXX flags: ${_cxxflags[*]}"
+  export \
+    CXXFLAGS="${_cxxflags[*]}"
+  CXXFLAGS="${_cxxflags[*]}" \
   cmake \
     -B build \
     -S "${pkgname}-${pkgver}" \
     "${_cmake_opts[@]}"
+  CXXFLAGS="${_cxxflags[*]}" \
   cmake \
     --build \
     build
