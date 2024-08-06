@@ -11,33 +11,64 @@ pkgrel=1
 pkgdesc='Rapid fuzzy string matching in C++ using the Levenshtein Distance'
 arch=('any')
 url='https://github.com/maxbachmann/rapidfuzz-cpp'
-license=('MIT')
-depends=('cmake')
-makedepends=('catch2')
-source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
-b2sums=('49743ab1634649bf5a2b33d91dce1877b0c3135345d9c187eb2d633a1bb804701697d8245a74cfde2a76564abeb3fc8228dce121dcc1a05f74630400d06bb659')
+license=(
+  'MIT'
+)
+depends=(
+  'cmake'
+)
+makedepends=(
+  'catch2'
+)
+source=(
+  "$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz"
+)
+b2sums=(
+  '49743ab1634649bf5a2b33d91dce1877b0c3135345d9c187eb2d633a1bb804701697d8245a74cfde2a76564abeb3fc8228dce121dcc1a05f74630400d06bb659'
+)
 
 build() {
+  local \
+    _cmake_opts=()
+  _cmake_opts=(
+    -D RAPIDFUZZ_BUILD_TESTING=ON 
+    -D RAPIDFUZZ_ENABLE_LINTERS=ON 
+    -D CMAKE_BUILD_TYPE=None 
+    -D CMAKE_INSTALL_PREFIX=/usr 
+    -W no-dev
+  )
+  if [[ "${_os}" == "Android" ]]; then
+    _cmake_opts+=(
+      -W no-shorten-64-to-32
+    )
+  fi
   cmake \
     -B build \
-    -S "$pkgname-$pkgver" \
-    -D RAPIDFUZZ_BUILD_TESTING=ON \
-    -D RAPIDFUZZ_ENABLE_LINTERS=ON \
-    -D CMAKE_BUILD_TYPE=None \
-    -D CMAKE_INSTALL_PREFIX=/usr \
-    -W no-dev
-
-  cmake --build build
+    -S "${pkgname}-${pkgver}" \
+    "${_cmake_opts[@]}"
+  cmake \
+    --build \
+    build
 }
 
 check() {
-  ctest --test-dir build --output-on-failure
+  ctest \
+    --test-dir \
+      build \
+    --output-on-failure
 }
 
 package() {
-  DESTDIR="$pkgdir" cmake --install build
+  DESTDIR="${pkgdir}" \
+  cmake \
+    --install \
+    build
 
   # license
-  install -vDm644 -t "$pkgdir/usr/share/licenses/$pkgname" "$pkgname-$pkgver/LICENSE"
+  install \
+    -vDm644 \
+    -t \
+    "$pkgdir/usr/share/licenses/$pkgname" \
+    "$pkgname-$pkgver/LICENSE"
 }
 
