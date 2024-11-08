@@ -11,7 +11,11 @@ _os="$( \
 pkgname=rapidfuzz-cpp
 pkgver=3.0.2
 pkgrel=1
-pkgdesc='Rapid fuzzy string matching in C++ using the Levenshtein Distance'
+_pkgdesc=(
+  'Rapid fuzzy string matching'
+  'in C++ using the Levenshtein Distance'
+)
+pkgdesc="${_pkgdesc[*]}"
 arch=(
   # 'any' it doesn't seem 'any'
   x86_64
@@ -22,7 +26,9 @@ arch=(
   i686
   aarch64
 )
-url="https://github.com/maxbachmann/${pkgname}"
+_http="https://github.com"
+_ns="maxbachmann"
+url="${_http}/${_ns}/${pkgname}"
 license=(
   'MIT'
 )
@@ -33,7 +39,7 @@ makedepends=(
   'catch2'
 )
 source=(
-  "$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz"
+  "${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz"
 )
 b2sums=(
   '49743ab1634649bf5a2b33d91dce1877b0c3135345d9c187eb2d633a1bb804701697d8245a74cfde2a76564abeb3fc8228dce121dcc1a05f74630400d06bb659'
